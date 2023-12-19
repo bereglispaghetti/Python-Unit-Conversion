@@ -3,7 +3,9 @@ lb_to_kg = ["lb", "kg", "0.45359237"]
 kg_to_lb = ["kg", "lb", "2.20462262"]
 kg_to_t = ["kg", "ton", "0.001"]
 arr_metrics = ["lb", "g", "kg", "ton"]
-operations = [lb_to_g, lb_to_kg, kg_to_lb, kg_to_t]
+operations = [-1, lb_to_kg, kg_to_t, -1, kg_to_lb, lb_to_g]
+
+#   g ->(-1) lb -> kg -> t ->(-1) kg -> lb -> g
 
 def askForMetric(str):
     while(True):
@@ -12,19 +14,24 @@ def askForMetric(str):
             print("Not a valid answer, try again.\n")
         else: return x 
 
-def operate(oper, k):
-    if oper[0] == operations[k][0] and oper[1] == operations[k][1]:
-        print("New value is: %f" %(oper[2] * float(operations[k][2])))
-        return 0
-    if k != 0:
-        operate(oper, k - 1)
-    else:
-        if oper[0] == "lb" and oper[1] == "ton":    # This part is a bit ugly
-            print("New value is: %f" %((oper[2] * float(lb_to_kg[2])) * float(kg_to_t[2])))
-            return 0
-        print("There is no metric conversion for %s to %s in the system.\n" %(oper[0], oper[1]))
-        exit()
-
+def operate(operand):
+    k = len(operations)
+    for i in range(k):
+        if i % 3 == 0:
+            if operand[0] == operations[k - 1 - i][1]:
+                operand[0] = operations[k - 1 - i][0]
+                operand[2] = operand[2] * (float(operations[k - 1 - i][2]) ** (-1))
+            if operand[0] == operand[1]:
+                print("New value is: %f" %operand[2])
+                return 0
+        else:
+            if operand[0] == operations[i][0]:
+                operand[0] = operations[i][1]
+                operand[2] = operand[2] * (float(operations[i][2]))
+            if operand[0] == operand[1]:
+                print("New value is: %f" %operand[2])
+                return 0
+            
 og_metric = askForMetric("original metric")
 new_metric = askForMetric("new metric")
 
@@ -36,5 +43,5 @@ while(True):
         print("Value must be a number, try again.\n")
 
 operand = [og_metric, new_metric, og_val]
-k = len(operations) - 1
-operate(operand, k)
+
+operate(operand)
